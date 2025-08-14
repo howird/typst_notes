@@ -12,9 +12,6 @@
 :%s/\\hat{\\\?\(.\{-}\)}/hat(\1)/gI
 :%s/\\mathcal{\(\w\)}/cal(\1)/gI " mathcal
 :%s/\\mathbb{\(\w\)}/\1\1/gI " mathbb
-:%s/{\\\?\(.\{-}\)}/\1/gI " {single_word} -> single_word
-:%s/{\(\_.\{-}\)}/(\1)/g " {many words} -> (many words)
-:%s/("\(\_.\{-}\)")/"\1"/g " ("many words") -> "many words"
 :%s/\\rightarrow/->/gI
 :%s/\\infty/infinity/gI
 :%s/\\leftarrow/<-/gI
@@ -22,4 +19,8 @@
 :%s/\\rangle/angle.r/gI
 :%s/\\sim/\~/gI
 :%s/\\cdot/dot/gI
-:%s/\\//gIc
+:%s/{\\\?\(.\{-}\)}/\1/gI " {single_word} -> single_word
+:%s/{\(\_.\{-}\)}/(\1)/g " {many words} -> (many words)
+:%s/("\(\_.\{-}\)")/"\1"/g " ("many words") -> "many words"
+:%s/\([a-zA-Z]\)\\/\1 /gI " replace backslashes
+:%s/\\//gI

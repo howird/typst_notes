@@ -8,6 +8,8 @@
 
 = Self-Supervised Representation Learning from Video via Action-Conditioned Successor Representations
 
+= How Can We Learn Goals
+
 = Latent GCRL
 
 + how can we use latent observation predictions for GCRL
