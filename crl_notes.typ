@@ -9,6 +9,9 @@
 #pagebreak()
 
 #include "rl/contrastive/max_ent_rl.typ"
-
+#include "rl/contrastive/diayn.typ"
 #include "rl/contrastive/contrastive_gcrl.typ"
+#include "rl/contrastive/misl.typ"
+#include "rl/contrastive/normalizing_flow_policy.typ"
+#include "rl/conservative-rl.typ"
 

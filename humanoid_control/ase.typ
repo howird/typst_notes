@@ -133,7 +133,7 @@ recommended:
 
 == Problem Formulation
 
-=== 1. Overall Objective
+=== Overall Objective
 
 The primary goal is to learn a versatile and reusable motor skill model for a
 physically simulated character. This is framed as a two-stage learning problem:
@@ -153,7 +153,7 @@ $
 where $tau$ is a trajectory, $gamma$ is the discount factor, and $r_t$ is the
 reward at time $t$.
 
-=== 2. Stage 1: Pre-training the Low-Level Policy
+=== Stage 1: Pre-training the Low-Level Policy
 
 In this stage, the goal is to train a skill-conditioned policy $pi(a|s, z)$ that
 maps a state $s$ and a latent skill variable $z$ to an action $a$. The latent
@@ -179,7 +179,7 @@ where:
 Since this objective is intractable to compute directly, it is approximated as
 follows:
 
-==== 2.1 Imitation Objective (Adversarial Formulation)
+==== Imitation Objective (Adversarial Formulation)
 
 The Jensen-Shannon divergence is minimized using a GAN-like adversarial setup. A
 *discriminator* $D(s,s')$ is trained to distinguish between state transitions
@@ -204,7 +204,7 @@ $
   r_t^"imitate" = - log(1 - D(s_t, s_(t + 1)))
 $
 
-==== 2.2 Skill Discovery Objective (Mutual Information Maximization)
+==== Skill Discovery Objective (Mutual Information Maximization)
 
 The goal is to make skills distinct and predictable. Maximizing mutual
 information $I(s,s';z|pi)$ encourages this.
@@ -230,7 +230,7 @@ $
   r_t^"discover" = log q(z_t |s_t, s_(t + 1))
 $
 
-==== 2.3 Full Pre-training Objective
+==== Full Pre-training Objective
 
 Combining the components, the low-level policy $pi$ is trained via RL using a
 reward function that is the sum of the imitation and skill discovery rewards. To
@@ -252,7 +252,7 @@ $
 The diversity term encourages the action distributions produced by two different
 skills ($z_1, z_2$) to be as dissimilar as the skills themselves.
 
-=== 3. Stage 2: Task-Training the High-Level Policy
+=== Stage 2: Task-Training the High-Level Policy
 
 After pre-training, the low-level policy $pi(a|s, z)$ and discriminator $D(s,s')$ are
 frozen. A new, task-specific *high-level policy* $omega(z|s, g)$ is trained to
@@ -277,9 +277,9 @@ $
 Here is a detailed outline of the research questions, experiments, results, and
 limitations discussed in the paper.
 
-== Results and Discussion
+== Discussion
 
-=== 1. Quality and Diversity of Learned Skills
+=== Quality and Diversity of Learned Skills
 
 - *Question*: Can the ASE pre-training process learn a rich and diverse set of
   skills from a large, unstructured motion dataset without any explicit skill
@@ -309,7 +309,7 @@ limitations discussed in the paper.
 
 - *Limitations*: This initial evaluation was purely qualitative.
 
-=== 2. Reusability for Downstream Tasks
+=== Reusability for Downstream Tasks
 
 - *Question*: Can the pre-trained low-level policy be effectively reused as a
   foundation to solve a variety of new, downstream tasks with minimal, simple
@@ -347,7 +347,7 @@ limitations discussed in the paper.
   functions with unnatural, sporadic, and jittery movements, whereas the ASE-based
   policies maintained more realistic behaviors.
 
-=== 3. Importance of Pre-Training Objectives
+=== Importance of Pre-Training Objectives
 
 - *Question*: How critical are the *skill discovery (SD)* and *diversity (Div.)*
   objectives for learning a high-quality, non-collapsed skill embedding and for
@@ -385,7 +385,7 @@ limitations discussed in the paper.
   and diverse set of skills, which directly translates to better performance and
   responsiveness in new tasks.
 
-=== 4. Robustness and Recovery
+=== Robustness and Recovery
 
 - *Question*: Can the framework produce a policy that automatically and robustly
   recovers from falls, even if "get up" motions are not present in the training

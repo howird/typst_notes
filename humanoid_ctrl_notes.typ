@@ -8,7 +8,9 @@
 
 #pagebreak()
 
+#include "humanoid_control/amp.typ"
 #include "humanoid_control/ase.typ"
+#include "humanoid_control/phc.typ"
 #include "humanoid_control/calm.typ"
 #include "humanoid_control/pulse.typ"
 #include "humanoid_control/deepphase.typ"

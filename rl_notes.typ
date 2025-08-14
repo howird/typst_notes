@@ -817,3 +817,8 @@ $
   that reward function, which in turn gives a better estimate of our partition
   function
 
+#include "rl/diffusion-policy.typ"
+#include "rl/streaming-drl.typ"
+#include "rl/streaming-diffusion-rl.typ"
+#include "rl/student-informed-teacher-rl.typ"
+#include "rl/sorb.typ"

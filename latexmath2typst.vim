@@ -8,7 +8,7 @@
 :%s/\\lceil\(.\{-}\)\\rceil/ceil(\1)/gI
 :%s/\\lfloor\(.\{-}\)\\rceil/round(\1)/gI
 :%s/||\(.\{-}\)||/norm(\1)/gI
-:%s/|\(.\{-}\)|/abs(\1)/gI
+:%s/|\(.\.\{-}\)|/abs(\1)/gI
 :%s/\\hat{\\\?\(.\{-}\)}/hat(\1)/gI
 :%s/\\mathcal{\(\w\)}/cal(\1)/gI " mathcal
 :%s/\\mathbb{\(\w\)}/\1\1/gI " mathbb
@@ -16,6 +16,7 @@
 :%s/{\(\_.\{-}\)}/(\1)/g " {many words} -> (many words)
 :%s/("\(\_.\{-}\)")/"\1"/g " ("many words") -> "many words"
 :%s/\\rightarrow/->/gI
+:%s/\\infty/infinity/gI
 :%s/\\leftarrow/<-/gI
 :%s/\\langle/angle.l/gI
 :%s/\\rangle/angle.r/gI
