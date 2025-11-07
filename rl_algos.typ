@@ -1,9 +1,14 @@
-#import "notes_template.typ": *
-#import "@preview/algorithmic:1.0.0"
-#import algorithmic: style-algorithm, algorithm-figure
+#import "styles/notes_template.typ": note
+#import "styles/things.typ": definition
 
-#show: dvdtyp.with(
-  title: "Reinforcement Learning Notes", subtitle: [Spring 2025], author: "Howard Nguyen-Huu",
+#import "@preview/showybox:2.0.4": showybox
+#import "@preview/algorithmic:1.0.0"
+#import algorithmic: algorithm-figure, style-algorithm
+
+#show: note.with(
+  title: "Reinforcement Learning Notes",
+  subtitle: [Spring 2025],
+  author: "Howard Nguyen-Huu",
 )
 
 #outline()
@@ -16,30 +21,30 @@
 
 - A *Markov chain* is a probabilistic model used to describe a system that
   transitions from one state to another
-- It is often used to model how the *state of a randomly changing system*, changes
-  over discrete time steps
+- It is often used to model how the *state of a randomly changing system*,
+  changes over discrete time steps
 - It is parameterized by the Transition/Dynamics model, $cal(T)$, a matrix of
   transition probabilities, where each entry in the matrix represents the
   probability of moving from one state to another
 
 $
   cal(T) = mat(
-    P(s_1|s_1), P(s_2|s_1), ..., P(s_n|s_1);P(s_1|s_2), P(s_2|s_2), ..., P(s_n|s_2);dots.v, dots.v, dots.down, dots.v;P(s_1|s_n), P(s_2|s_n), ..., P(s_n|s_n);
+    P(s_1|s_1), P(s_2|s_1), ..., P(s_n|s_1); P(s_1|s_2), P(s_2|s_2), ..., P(s_n|s_2); dots.v, dots.v, dots.down, dots.v; P(s_1|s_n), P(s_2|s_n), ..., P(s_n|s_n);
   )
 $
 
 - Notice $cal(T)_(i, j) = P(s_j|s_i)$, thus
-  - the $i^"th"$ row consists of the probabilities of entering each possible state
-    from state $s_i$
-  - the $j^"th"$ column consists of the probabilities of entering state, $s_j$ from
-    each of the possible states
+  - the $i^"th"$ row consists of the probabilities of entering each possible
+    state from state $s_i$
+  - the $j^"th"$ column consists of the probabilities of entering state, $s_j$
+    from each of the possible states
   - the diagonal consists of the probabilities of remaining in the same state
 
 #definition(
   "Markov Property",
 )[
-  The probability of transitioning to any future state depends only on the current
-  state and not its history:
+  The probability of transitioning to any future state depends only on the
+  current state and not its history:
   $
     P(s_(t+1) | s_t) = P(s_(t+1) | s_0, ..., s_t)
   $
@@ -49,28 +54,31 @@ $
   that we only have to consider the current state in any analyses of the future
 - The Markov Chain formulation is useful as it can help us describe the state
   dynamics of a system -- however, just having a mathematical formulation of the
-  dynamics of a system is like just having a probability distribution of a random
-  variable, but not knowing the anything else about the variable -- _how are we going to analyze it if it doesn't come with a quantity?_
+  dynamics of a system is like just having a probability distribution of a
+  random variable, but not knowing the anything else about the variable -- _how
+  are we going to analyze it if it doesn't come with a quantity?_
 
 == Markov Reward Process
 
-#definition[*Markov Reward Process* $cal(M) = angle.l S, cal(T), R, gamma angle.r$][
+#definition[*Markov Reward Process*
+  $cal(M) = angle.l S, cal(T), R, gamma angle.r$][
   - State $s in S$: The agent’s perception of the environment
   - Reward $r in R$: Immediate feedback received _after_ a state transition
   - Environment $cal(T)(s_(t+1) | s_t, a_t)$: World the agent interacts with
 ]
 
-- The Markov Reward Process extends the Markov Chain with the notion of reward, a
-  real value quantifying the general 'goodness' of a state _transition_
-- However, a reward only quantifies the desirability of a single state transition;
-  it fails to provide any notion of the future reward -- which is especially
-  important since our analysis pertains to a system that changes over time (a
-  Markov Process)
+- The Markov Reward Process extends the Markov Chain with the notion of reward,
+  a real value quantifying the general 'goodness' of a state _transition_
+- However, a reward only quantifies the desirability of a single state
+  transition; it fails to provide any notion of the future reward -- which is
+  especially important since our analysis pertains to a system that changes over
+  time (a Markov Process)
 
 == Return Function
 
 #definition[*Return Function*][
-  Estimate how good a state is, in terms of expected sum of future rewards, _with respect to a specific policy_
+  Estimate how good a state is, in terms of expected sum of future rewards,
+  _with respect to a specific policy_
   $
     G_t = sum_(k=0)^H gamma^k r_(t+k+1)
   $
@@ -80,7 +88,8 @@ $
 
 == Markov Decision Process
 
-#definition[*Markov Decision Process* $cal(M) = angle.l S, A, cal(T), R, gamma angle.r$][
+#definition[*Markov Decision Process*
+  $cal(M) = angle.l S, A, cal(T), R, gamma angle.r$][
   - State $s in S$: The agent’s perception of the environment
   - Action $a in A$: Choices the agent makes
   - Reward $r in R$: Immediate feedback received after an action
@@ -91,7 +100,8 @@ $
 == Value Function
 
 #definition[*Value Function*][
-  Estimate how good a state is, in terms of expected sum of future rewards, _with respect to a specific policy_
+  Estimate how good a state is, in terms of expected sum of future rewards,
+  _with respect to a specific policy_
   $
     V^pi (s) = sum_(t=0)^infinity gamma^t R lr((s_t, a_t = pi(s_t)))
   $
@@ -100,9 +110,9 @@ i So.. easy right? Just do this:
 + Collect trajectories, $tau = {(s_0, a_0, r_1), ... (s_T, a_T,)}$
 + Estimate $V^pi$ from trajectories
 + Update $pi$ parameters $theta := theta + alpha gradient_theta V^(pi_theta)$
-- Not really, since $V^pi$ is by definition, the rewards w.r.t. a *_specific_* $pi$,
-  for *_all future timesteps_*, updating $theta$ alters $cal(P)_text("state")^pi (s)$,
-  invalidating $V^pi$
+- Not really, since $V^pi$ is by definition, the rewards w.r.t. a *_specific_*
+  $pi$, for *_all future timesteps_*, updating $theta$ alters
+  $cal(P)_text("state")^pi (s)$, invalidating $V^pi$
 
 - Like in SL, distribution shifts are a large, overarching problem in RL
   - which PPO mitigates pretty well, by clipping/regularizing $theta$ updates
@@ -110,36 +120,36 @@ i So.. easy right? Just do this:
 == theme: Recursive Definitions
 
 $
-  G_t &= sum_(k=0)^H gamma^k r_(t+k+1) \
-      &= gamma^0 r_(t+1) + sum_(k=0)^H gamma^(k+1) r_(t+k+2) \
-      &= gamma^0 r_(t+1) + gamma sum_(k=0)^H (gamma^k r_((t+1)+k+1)) \
-      &= r_(t+1) + gamma G_(t+1)
+  G_t & = sum_(k=0)^H gamma^k r_(t+k+1) \
+      & = gamma^0 r_(t+1) + sum_(k=0)^H gamma^(k+1) r_(t+k+2) \
+      & = gamma^0 r_(t+1) + gamma sum_(k=0)^H (gamma^k r_((t+1)+k+1)) \
+      & = r_(t+1) + gamma G_(t+1)
 $
 
 - Bootstrapping:
-- *Concept*: In RL, bootstrapping refers to the idea that an estimate of the value
-  function is updated using another estimate of the value function
+- *Concept*: In RL, bootstrapping refers to the idea that an estimate of the
+  value function is updated using another estimate of the value function
   - That is, instead of waiting until the actual return (cumulative reward) is
     observed, we use the current estimates to update future estimates
 - *Why it's useful*: It enables *efficient learning* by leveraging prior
-  knowledge, reducing the need for full rollouts of an episode before updating the
-  value function.
+  knowledge, reducing the need for full rollouts of an episode before updating
+  the value function.
 - *Key property*: It relies on the assumption that previous estimates are
   reasonably accurate, even though they might be biased or incomplete
 
 - in RL, bootstrapping is linked to [dynamic
   programming](2_concepts/dynamic-programming-rl.md)
 - In [Temporal Difference (TD)
-  Learning](temporal-difference-policy-evaluation.md), for example, the value of a
-  state $V(s)$ is updated using the value of the next state $V(s')$, rather than
-  waiting for the actual return:
+  Learning](temporal-difference-policy-evaluation.md), for example, the value of
+  a state $V(s)$ is updated using the value of the next state $V(s')$, rather
+  than waiting for the actual return:
 
 $
   V(s_t) := V(s_t) + alpha (r + gamma V(s_(t+1)) - V(s_t))
 $
 
-- This is an example of bootstrapping because we're using an *existing estimate* ($V(s')$)
-  rather than actual future rewards.
+- This is an example of bootstrapping because we're using an *existing estimate*
+  ($V(s')$) rather than actual future rewards.
 
 = Learning Policies with Models
 
@@ -147,13 +157,13 @@ $
 
 - *Policy Evaluation* and *Control* are two distinct *tasks* in reinforcement
   learning, and many algorithms integrate both of them
-- Policy evaluation can be viewed as a sub-task of control, where the value of the
-  current policy is estimated in order to improve it iteratively toward an optimal
-  policy
+- Policy evaluation can be viewed as a sub-task of control, where the value of
+  the current policy is estimated in order to improve it iteratively toward an
+  optimal policy
 
 === Policy Evaluation
-- *TASK*: estimate the [value function](2_concepts/value-functions.md) $V^pi(s)$ or $Q^pi(s, a)$ for
-  a given policy $pi$
+- *TASK*: estimate the [value function](2_concepts/value-functions.md) $V^pi(s)$
+  or $Q^pi(s, a)$ for a given policy $pi$
   - i.e. "How good is it to follow this policy $pi$ from a given state or
     state-action pair?"
 
@@ -163,17 +173,18 @@ $
   - [Temporal Difference](2_concepts/temporal-difference-policy-evaluation.md)
     methods like *TD(0)*
   - [Monte Carlo](2_concepts/monte-carlo-policy-evaluation.md) methods
-  - Dynamic Programming methods for policy evaluation (Bellman expectation equation)
+  - Dynamic Programming methods for policy evaluation (Bellman expectation
+    equation)
 
 === Control
-- *TASK*: *improve* the policy, aiming to find the *optimal policy* that maximizes
-  long-term rewards
+- *TASK*: *improve* the policy, aiming to find the *optimal policy* that
+  maximizes long-term rewards
   - evaluates the current policy
   - ALSO updates it iteratively to become more optimal
 
 - *Goal*: To find the best policy $pi^*$ that maximizes the expected reward.
-- Examples that combine policy evaluation and policy improvement. In these control
-  algorithms, the value function is updated, and the policy is improved
+- Examples that combine policy evaluation and policy improvement. In these
+  control algorithms, the value function is updated, and the policy is improved
   simultaneously:
   - [q-learning](2_concepts/q-learning.md)
   - [SARSA](2_concepts/SARSA.md)
@@ -183,18 +194,19 @@ In many reinforcement learning algorithms, *policy evaluation* and *control* are
 combined into a single process. Control algorithms often include both evaluation
 and improvement steps:
 
-- *Policy Iteration*: This is a classic algorithm that explicitly separates policy
-  evaluation and control (policy improvement). It alternates between:
+- *Policy Iteration*: This is a classic algorithm that explicitly separates
+  policy evaluation and control (policy improvement). It alternates between:
   1. *Policy evaluation*: Evaluates the current policy.
   2. *Policy improvement*: Updates the policy to improve it based on the current
     value estimates.
 
   These steps are repeated until convergence to the optimal policy.
 
-- *Value Iteration*: This is a control algorithm that effectively combines policy
-  evaluation and policy improvement in each step. It updates the value function
-  using the Bellman optimality equation without explicitly evaluating a policy.
-  The process inherently improves the policy as the value function is updated.
+- *Value Iteration*: This is a control algorithm that effectively combines
+  policy evaluation and policy improvement in each step. It updates the value
+  function using the Bellman optimality equation without explicitly evaluating a
+  policy. The process inherently improves the policy as the value function is
+  updated.
 
 - *SARSA and Q-learning*: These TD-based control methods integrate both tasks.
   They evaluate the current policy by updating the value function and implicitly
@@ -206,13 +218,13 @@ and improvement steps:
   iteration](2_concepts/policy-value-iteration.md)
 - These methods are useful only in *model-based, tabular settings* with perfect
   knowledge of the environment
-  - *they assume full knowledge of the environment's dynamics*, i.e., the transition
-    probabilities $P(s'|s,a)$ and rewards $R(s,a)$
+  - *they assume full knowledge of the environment's dynamics*, i.e., the
+    transition probabilities $P(s'|s,a)$ and rewards $R(s,a)$
 - These methods use initial estimates of a Value function and improve these
   estimates using [bootstrapping](2_concepts/bootstrapping.md)
 
-- The goal of either of these methods is to find the *optimal policy* $pi^*$ maximizes
-  the expected return from any state
+- The goal of either of these methods is to find the *optimal policy* $pi^*$
+  maximizes the expected return from any state
 - These are examples of [dynamic programming rl
   algorithms](2_concepts/dynamic-programming-rl.md)
 - They are guaranteed to have monotonic improvement
@@ -268,7 +280,8 @@ $
 
 - Where:
   - $R_pi(s) = sum_a pi(a|s) R(s, a)$ is the reward vector under policy $pi$.
-  - $P_pi(s'|s) = sum_a pi(a|s) P(s'|s, a)$ is the transition matrix under policy $pi$.
+  - $P_pi(s'|s) = sum_a pi(a|s) P(s'|s, a)$ is the transition matrix under
+    policy $pi$.
 
 - For *value iteration*, the optimal Bellman equation is:
 $
@@ -284,8 +297,8 @@ $
 
 == Monte Carlo Policy Evaluation
 
-- *Key Idea*: Estimate value functions using the average of observed returns over
-  multiple episodes (trajectories)
+- *Key Idea*: Estimate value functions using the average of observed returns
+  over multiple episodes (trajectories)
 
 - does not require MDP dynamics/rewards ([model-free](2_concepts/model-free.md))
 - no [bootstrapping](2_concepts/bootstrapping.md)
@@ -303,21 +316,25 @@ $
 - *Every-Visit Monte Carlo*: Considers every occurrence of each state within an
   episode
   - using multiple states per episode makes $V^pi$ a *biased* estimator, because
-    while each episode is independent the individual state-action-reward pairs are
-    within an episode are not
+    while each episode is independent the individual state-action-reward pairs
+    are within an episode are not
     [i.i.d.](2_concepts/individually-identically-distributed.md)
-  - this method is still empirically better, we can have more updates, more often
+  - this method is still empirically better, we can have more updates, more
+    often
 
 === First-Visit/Every-Visit MC Algorithms
 
 - Initialize $V(s)$, $N(s)$, $G(s)$ to $arrow.l 0$ for all $s in S$
-- For each episode, $i$: $[(s_{i,1}, a_{i,1}, r_{i,1}), (s_{i,2}, a_{i,2}, r_{i,2}), ..., (s_{i,T}, a_{i,T}, r_{i,T_i})]$
-  - For each ($s$ encountered for the first time in the episode _OR_ time step $t$)
+- For each episode, $i$:
+  $[(s_{i,1}, a_{i,1}, r_{i,1}), (s_{i,2}, a_{i,2}, r_{i,2}), ..., (s_{i,T}, a_{i,T}, r_{i,T_i})]$
+  - For each ($s$ encountered for the first time in the episode _OR_ time step
+    $t$)
     - $G_{i,t} = r_t + gamma r_{i, t+1} + gamma^2 r_{i, t+2} + ... + gamma^{T_i-1} r_{i, T_i}$
     - $N(s) = N(s) + 1$ (increment the counter for state $s$)
     - $G(s) = G(s) + G_t$ (add the return to the total return for $s$)
     - Value estimate: $V(s) = G(s)/N(s)$
-      - can be rewritten as $V(s) = V(s) + alpha(G_{i,t}-V(s))$ where $alpha=1/N(s)$
+      - can be rewritten as $V(s) = V(s) + alpha(G_{i,t}-V(s))$ where
+        $alpha=1/N(s)$
         - when $alpha>1/N(s)$ older values are forgotten over time
 
 === Extension to Q Function
@@ -327,9 +344,12 @@ $
   rather than just states (obviously)
 - During the policy improvement step, this lets us do $pi = arg max_a Q(s, a)$
 
-- Initialize $Q^pi(s, a)$, $N(s, a)$, $G(s, a)$ to $arrow.l 0$ for all $s in S, a in A$
-- For each episode, $i$: $[(s_{i,1}, a_{i,1}, r_{i,1}), (s_{i,2}, a_{i,2}, r_{i,2}), dots, (s_{i,T}, a_{i,T}, r_{i,T_i})]$
-  - For each ($s$ encountered for the first time in the episode _OR_ time step $t$)
+- Initialize $Q^pi(s, a)$, $N(s, a)$, $G(s, a)$ to $arrow.l 0$ for all
+  $s in S, a in A$
+- For each episode, $i$:
+  $[(s_{i,1}, a_{i,1}, r_{i,1}), (s_{i,2}, a_{i,2}, r_{i,2}), dots, (s_{i,T}, a_{i,T}, r_{i,T_i})]$
+  - For each ($s$ encountered for the first time in the episode _OR_ time step
+    $t$)
     - $N(s, a) = N(s, a) + 1$
     - $G(s, a) = G(s, a) + G_t$
     - Value estimate: $Q^pi(s, a) = Q^pi(s, a) + alpha(G_{i,t}-Q^pi(s, a))$
@@ -337,8 +357,8 @@ $
 - TD learning is a [model free](2_concepts/model-free.md) method for *policy
   evaluation* that combines ideas from *Monte Carlo* methods and *dynamic
   programming*
-- It updates value estimates incrementally, using the current reward and the value
-  of the next state, without requiring complete episodes.
+- It updates value estimates incrementally, using the current reward and the
+  value of the next state, without requiring complete episodes.
 
 == Temporal Difference Learning
 
@@ -356,7 +376,6 @@ $
     - sample $(s_t, a_t, r_t, s_{t+1})$
     - $V(s_t) arrow.l V(s_t) + alpha overbrace(
         underbrace(r_t + gamma V(s_(t+1)), "TD Target") - V(s_t), delta_t", TD Error",
-
       )$
 
 - very similar to q-learning except we are fixing a policy here
@@ -365,25 +384,25 @@ $
 === Key Concepts:
 
 1. *TD Target*, $r_t + gamma V(s_{t+1})$
-  - estimated return for the current state $s_t$ after observing the next state $s_{t+1}$.
-    It combines the immediate reward $r_t$ and the discounted estimate of the value
-    of the next state $V(s_{t+1})$
-  - Normally, the TD target would be the expected value of $V(s_{t+1})$, however, we
-    bootstrap by using the previous estimation
-    - We don't have the transition model so we cannot easily calculate the previous
-      estimation
+  - estimated return for the current state $s_t$ after observing the next state
+    $s_{t+1}$. It combines the immediate reward $r_t$ and the discounted
+    estimate of the value of the next state $V(s_{t+1})$
+  - Normally, the TD target would be the expected value of $V(s_{t+1})$,
+    however, we bootstrap by using the previous estimation
+    - We don't have the transition model so we cannot easily calculate the
+      previous estimation
 
 2. *TD Error*: $delta_t = r_t + gamma V(s_{t+1}) - V(s_t)$
-  - The TD error measures the difference between the current value estimate $V(s_t)$ and
-    the updated target
+  - The TD error measures the difference between the current value estimate
+    $V(s_t)$ and the updated target
   - The error is used to adjust the value estimate
   - TD Error doesn't necessarily go to zero, since it is a sample, and not the
     expectation
     - it only goes to zero when the transition is deterministic
 
 3. *Incremental Update*:
-  - The value estimate $V(s_t)$ is updated after each transition, using the TD error
-    and learning rate $alpha$.
+  - The value estimate $V(s_t)$ is updated after each transition, using the TD
+    error and learning rate $alpha$.
 $
   V(s_t) arrow.l V(s_t) + alpha delta_t
 $
@@ -396,8 +415,8 @@ $
   (i.e., transition probabilities or reward function), only the immediate
   experience
 - *Bootstrapping*: TD learning updates the value estimates based on other
-  estimated values (i.e., using $V(s_{t+1})$), rather than waiting for a complete
-  return as in Monte Carlo methods
+  estimated values (i.e., using $V(s_{t+1})$), rather than waiting for a
+  complete return as in Monte Carlo methods
 - *On-Policy*: The value function is learned under the policy that is currently
   being followed (though there are off-policy TD methods like Q-learning)
 
@@ -414,8 +433,8 @@ $
 
 === Disadvantages
 
-- *Bias*: Since TD updates are based on current value estimates, there can be bias
-  in early estimates, especially if the initialization of $V(s)$ is poor
+- *Bias*: Since TD updates are based on current value estimates, there can be
+  bias in early estimates, especially if the initialization of $V(s)$ is poor
 
 === Comparison to MC
 
@@ -429,8 +448,9 @@ $
 
 == SARSA
 
-- An on-policy [control](2_concepts/control-policy-evaluation.md) algorithm based
-  on [TD policy evaluation](2_concepts/temporal-difference-policy-evaluation.md)
+- An on-policy [control](2_concepts/control-policy-evaluation.md) algorithm
+  based on [TD policy
+  evaluation](2_concepts/temporal-difference-policy-evaluation.md)
 - Chooses an action, not necessarily the best one, sees the result, then updates
   it’s value function with that knowledge
 - will converge eventually, but more slowly than
@@ -454,8 +474,8 @@ $
 
 === Expected Sarsa
 
-- A variation of the SARSA algorithm, where instead of using the *sampled value of
-  the next state-action pair*, it uses the *expected value* of the next
+- A variation of the SARSA algorithm, where instead of using the *sampled value
+  of the next state-action pair*, it uses the *expected value* of the next
   state-action value function
 - This method calculates the expected return by taking into account all possible
   actions in the next state and weighting them according to the policy.
@@ -468,7 +488,8 @@ $
   - Initialize the starting state $S_t$
   - Choose an action $A_t$ based on the current policy derived from $Q(s, a)$
   - For each step within the episode:
-    - Take action $A_t$, observe the reward $R_{t+1}$ and the next state $S_{t+1}$
+    - Take action $A_t$, observe the reward $R_{t+1}$ and the next state
+      $S_{t+1}$
     - $Q(S_t, A_t) arrow.l Q(S_t, A_t) + alpha [ R_{t+1} + gamma sum_a \pi(a|S_{t+1})Q(S_{t+1}, a) - Q(S_t, A_t)]$
 
     - Update the state $S_t arrow.l S_{t+1}$ and action $A_t arrow.l A'$
@@ -476,16 +497,17 @@ $
 === Comparison:
 
 - *SARSA:* Updates based on the actual next action taken
-- *Expected Sarsa:* Updates based on the expected value of all actions at the next
-  state, weighted by the policy probabilities.
+- *Expected Sarsa:* Updates based on the expected value of all actions at the
+  next state, weighted by the policy probabilities.
 - *Performance:* Expected Sarsa typically performs better than SARSA in terms of
   stability and convergence speed, though it involves more computation as it
   requires calculating the expected value over all actions.
 
 == Q Learning
 
-- An off-policy [control](2_concepts/control-policy-evaluation.md) algorithm based
-  on [TD policy evaluation](2_concepts/temporal-difference-policy-evaluation.md)
+- An off-policy [control](2_concepts/control-policy-evaluation.md) algorithm
+  based on [TD policy
+  evaluation](2_concepts/temporal-difference-policy-evaluation.md)
 - Unlike [SARSA](2_concepts/SARSA.md), Q-learning's off-policy nature
 - Q-learning updates the action-value function $Q(s, a)$ using the *maximum*
   future value, regardless of the action taken by the current policy
@@ -508,21 +530,25 @@ $
 
 - A variant of Q-learning designed to mitigate the overestimation bias in
   Q-learning by decoupling action selection from action evaluation.
-- Instead of using one Q-value function, Double Q-Learning trains two independent
-  Q-value functions, $Q_1$ and $Q_2$.
+- Instead of using one Q-value function, Double Q-Learning trains two
+  independent Q-value functions, $Q_1$ and $Q_2$.
 
 === Algorithm
 
 - Initialize two action-value functions $Q_1(s, a)$ and $Q_2(s, a)$ arbitrarily,
-  except for terminal states where $Q_1(s_"terminal", dot) = Q_2(s_"terminal", dot) = 0$.
+  except for terminal states where
+  $Q_1(s_"terminal", dot) = Q_2(s_"terminal", dot) = 0$.
 - *For each episode*:
   - Initialize the starting state $S_t$
   - For each step within the episode:
     - Choose action $A_t$ based on $Q(s, a) = Q_1(s, a) + Q_2(s, a)$
-      - Take action $A_t$, observe reward $R_{t+1}$, and transition to the next state $S_{t+1}$
+      - Take action $A_t$, observe reward $R_{t+1}$, and transition to the next
+        state $S_{t+1}$
     - Update either $Q_1$ or $Q_2$ with equal probability
-      - If updating $Q_1$, use $Q_2$ for the next state's value $Q_1(S_t, A_t) arrow.l (1 - alpha)Q_1(S_t, A_t) + alpha (R_{t+1} + gamma Q_2(S_{t+1}, arg max_a Q_1(S_{t+1}, a))$
-      - If updating $Q_2$, use $Q_1$ for the next state's value: $Q_2(S_t, A_t) arrow.l (1-alpha)Q_2(S_t, A_t) + alpha (R_{t+1} + gamma Q_1(S_{t+1}, arg max_a Q_2(S_{t+1}, a)))$
+      - If updating $Q_1$, use $Q_2$ for the next state's value
+        $Q_1(S_t, A_t) arrow.l (1 - alpha)Q_1(S_t, A_t) + alpha (R_{t+1} + gamma Q_2(S_{t+1}, arg max_a Q_1(S_{t+1}, a))$
+      - If updating $Q_2$, use $Q_1$ for the next state's value:
+        $Q_2(S_t, A_t) arrow.l (1-alpha)Q_2(S_t, A_t) + alpha (R_{t+1} + gamma Q_1(S_{t+1}, arg max_a Q_2(S_{t+1}, a)))$
     - Update the state $S arrow.l S'$
 
 = Deep Reinforcement Learning
@@ -531,15 +557,16 @@ $
 
 == Derivation
 
-- Previous methods didn't require that we learned a policy at all the 'policy' was
-  simply defined implicitly via $Q(s, a)$ as $pi(s) = arg max_(a in A) Q(s, a)$,
+- Previous methods didn't require that we learned a policy at all the 'policy'
+  was simply defined implicitly via $Q(s, a)$ as
+  $pi(s) = arg max_(a in A) Q(s, a)$,
 - Notice that we perform an $arg max$ over $a in A$, this operation is only
   tractable given tabular $A$; thus is we want a policy with a continuous action
   space, a different method is required
 - Challenge: can we directly optimize parameters of a policy to maximize $V$?
 - Let:
-  - $pi_theta$: stochastic policy defined as a probability distribution of actions, $a$,
-    given state, $s$: $P(a|s)$
+  - $pi_theta$: stochastic policy defined as a probability distribution of
+    actions, $a$, given state, $s$: $P(a|s)$
   - $R(tau)$: reward of a trajectory, previously we would describe this as the
     return, $G(s)$
   - $V_theta (s)$: state-value function; expected sum of rewards acting on the
@@ -570,8 +597,8 @@ $
 - Challenges 1: most deep rl methods assume that the optimal solution, at least
   under full observability, is always a deterministic policy
   - since stochasticity is desirable for exploration, we often use heuristic
-    methods, such as injecting noise or initializing stochastic policies with high
-    entropy
+    methods, such as injecting noise or initializing stochastic policies with
+    high entropy
 
 - Hypotheses: we might actually prefer to learn stochastic behaviors to
   + exploration in the presence of multimodal objectives and compositionality
@@ -579,10 +606,10 @@ $
   + robustness in the face of uncertain dynamics
 
 - Challenge 1: what objective can we define that promotes stochasticity?
-  - Hypothesis: framing control as inference produces policies that aim to capture
-    not only the single deterministic behavior that has the lowest cost, but the
-    entire range of low-cost behaviors, explicitly maximizing the entropy of the
-    corresponding policy
+  - Hypothesis: framing control as inference produces policies that aim to
+    capture not only the single deterministic behavior that has the lowest cost,
+    but the entire range of low-cost behaviors, explicitly maximizing the
+    entropy of the corresponding policy
 
 - Goal: Learn a policy with high entropy:
 
@@ -597,9 +624,9 @@ $
   pi^*_"MaxEnt" = arg max_pi sum_t EE_((s_t, a_t) ~ rho_pi) [r(s_t, a_t) + alpha cal(H)(pi(dot | s_t))]
 $
 
-- this differs from previous methods that greedily maximize entropy at the current
-  time step, but do no explicitly optimize for policies that aim to reach _states_ where
-  they will have high entropy in the _future_
+- this differs from previous methods that greedily maximize entropy at the
+  current time step, but do no explicitly optimize for policies that aim to
+  reach _states_ where they will have high entropy in the _future_
 -
 
 == Soft-Actor Critic
@@ -610,22 +637,24 @@ $
 
 ==== A. Double Q-Learning
 
-- In [DQN](2_concepts/deep-q-networks.md), two sets of parameters are used for the
-  Deep Q Network, giving a "Prediction Network" and a "Target Network" to avoid _maximization bias_
+- In [DQN](2_concepts/deep-q-networks.md), two sets of parameters are used for
+  the Deep Q Network, giving a "Prediction Network" and a "Target Network" to
+  avoid _maximization bias_
 - The "Prediction" parameters were updated each batch as per standard practice,
   while the policy was evaluated using the "Target" parameters, which are a
   delayed copy of the "Prediction" parameters which is periodically synchronized
 - This method was called Double DQN, not to be confused with [Double
   Q-learning](2_concepts/double-q-learning.md)
 - Unfortunately, due to the slow-changing policy in an actor-critic setting, the
-  current and target value estimates remain too similar to avoid maximization bias
+  current and target value estimates remain too similar to avoid maximization
+  bias
 
 ==== B. Clipped Double Q-Learning
 
 - While Double Q-Learning allows for a less biased value estimation, even an
-  unbiased estimate with high variance can still lead to future overestimations in
-  local regions of state space, which in turn can negatively affect the global
-  policy
+  unbiased estimate with high variance can still lead to future overestimations
+  in local regions of state space, which in turn can negatively affect the
+  global policy
 - Double Q-learning is more effective, it does not entirely eliminate the
   overestimation, to improve this _clipping_ was introduced
 - In original [Double Q-learning](2_concepts/double-q-learning.md), the two Q
@@ -637,9 +666,11 @@ $
 $
 
 - In implementation, computational costs can be reduced by using a single actor
-  optimized with respect to $Q_(theta_1)$, and use the same target $y_2 = y_1$ for $Q_theta_2$
+  optimized with respect to $Q_(theta_1)$, and use the same target $y_2 = y_1$
+  for $Q_theta_2$
 - If $Q_theta_2 gt Q_theta_1$
-  - the update is identical to the standard update and induces no additional bias
+  - the update is identical to the standard update and induces no additional
+    bias
 - else:
   - overestimation has occurred and the value is reduced by clipping
 

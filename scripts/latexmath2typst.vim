@@ -2,6 +2,7 @@
 :%s/\\text{\(.\{-}\)}/"\1"/gI
 :%s/\\bar{\\\?\(.\{-}\)}/overline(\1)/gI
 :%s/\\dot{\\\?\(.\{-}\)}/dot(\1)/gI
+:%s/\\vec{\\\?\(.\{-}\)}/arrow(\1)/gI
 :%s/\\tilde{\\\?\(.\{-}\)}/tilde(\1)/gI
 :%s/\\overline{\\\?\(.\{-}\)}/overline(\1)/gI
 :%s/\\lfloor\(.\{-}\)\\rfloor/floor(\1)/gI
@@ -19,7 +20,7 @@
 :%s/\\rangle/angle.r/gI
 :%s/\\sim/\~/gI
 :%s/\\cdot/dot/gI
-:%s/{\\\?\(.\{-}\)}/\1/gI " {single_word} -> single_word
+:%s/{\\\?\(\w\{-}\)}/\1/gI " {single_word} -> single_word
 :%s/{\(\_.\{-}\)}/(\1)/g " {many words} -> (many words)
 :%s/("\(\_.\{-}\)")/"\1"/g " ("many words") -> "many words"
 :%s/\([a-zA-Z]\)\\/\1 /gI " replace backslashes

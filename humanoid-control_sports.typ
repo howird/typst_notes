@@ -10,6 +10,6 @@
 
 #pagebreak()
 
-#include "humanoid_control/amp.typ"
-#include "humanoid_control/phc.typ"
-#include "humanoid_control/omnigrasp.typ"
+#include "humanoid_control/physicsfc.typ"
+#include "humanoid_control/skillmimic.typ"
+#include "humanoid_control/graph-imputer.typ"

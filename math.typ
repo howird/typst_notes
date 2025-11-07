@@ -1,6 +1,6 @@
-#import "notes_template.typ": *
+#import "styles/notes_template.typ": *
 
-#show: dvdtyp.with(title: "Math Notes", subtitle: [], author: "Howard Nguyen-Huu")
+#show: note.with(title: "Math Notes", subtitle: "", author: "Howard Nguyen-Huu")
 
 #outline()
 

@@ -1,117 +1,139 @@
+#import "../styles/things.typ": challenge, hypothesis, question
+
 = Adversarial Motion Priors
 
 == Overview
 
 This paper introduces *Adversarial Motion Priors (AMP)*, a framework for
-data-driven, physics-based character animation. [2, 30] It allows a simulated
-character to perform high-level tasks while adopting a low-level motion "style"
-defined by a collection of raw motion clips. [13]
+data-driven, physics-based character animation. It allows a simulated character
+to perform high-level tasks while adopting a low-level motion "style" defined by
+a collection of raw motion clips.
 
-=== Challenges & Solutions
+=== Challenges
 
-- *Challenge*: Manually designing reward functions that produce natural, life-like
-  motion is exceptionally difficult and often requires task-specific tuning. [91,
-  47]
-  - *Approach*: Instead of manual design, the system learns a "style-reward" ($r^S$)
-    from data using adversarial imitation learning. [12, 15] This reward is provided
-    by an adversarial discriminator, termed the *Adversarial Motion Prior (AMP)*,
-    which is trained to distinguish between motions from a reference dataset and
-    those produced by the character's policy. [61, 212] This learned style-reward is
-    combined with a simple, high-level task-reward ($r^G$) to guide the character.
-    [13, 205]
-  - *Hypothesis*: An adversarial discriminator can serve as a general, task-agnostic
-    model of motion "style." [58, 167] This effectively decouples the "what" (the
-    task) from the "how" (the style), allowing a user to specify a task with a
-    simple reward function and control the style by simply swapping the motion
-    dataset. [216]
-  - *Alternative*: The traditional alternative is to use meticulously engineered
-    tracking objectives that minimize a pose-error metric between the character and
-    a specific reference motion. [11, 50, 99]
+#challenge[
+  Manually designing reward functions that produce natural, life-like motion is
+  exceptionally difficult and often requires task-specific tuning.
+][
+  Instead of manual design, the system learns a "style-reward" ($r^S$) from data
+  using adversarial imitation learning. This reward is provided by an
+  adversarial discriminator, termed the *Adversarial Motion Prior (AMP)*, which
+  is trained to distinguish between motions from a reference dataset and those
+  produced by the character's policy. This learned style-reward is combined with
+  a simple, high-level task-reward ($r^G$) to guide the character.
 
-- *Challenge*: Scaling existing data-driven methods to large, unstructured motion
-  datasets is difficult. [52] These methods often require a complex motion planner
-  to select, sequence, and blend appropriate clips for the character to follow,
-  which involves significant annotation overhead. [54, 110]
-  - *Approach*: The AMP framework is trained on the entire raw, unstructured motion
-    dataset at once. [12, 60] The reinforcement learning process, guided by the
-    combined task and style rewards, automatically learns to select, transition
-    between, and compose different skills (e.g., walking, jumping, punching) as
-    needed to solve the task. [16, 64]
-  - *Hypothesis*: The composition of disparate skills can emerge automatically from
-    the learned motion prior without needing an explicit high-level planner or any
-    task-specific annotations on the motion clips. [18, 128]
-  - *Alternative*: Using a dedicated motion planner to generate reference
-    trajectories by selecting from annotated and organized motion clips. [53, 111]
+  #hypothesis[
+    An adversarial discriminator can serve as a general, task-agnostic model of
+    motion "style." This effectively decouples the "what" (the task) from the
+    "how" (the style), allowing a user to specify a task with a simple reward
+    function and control the style by simply swapping the motion dataset.
+  ]
 
-- *Challenge*: Adversarial learning algorithms for motion imitation are
-  notoriously unstable and have historically produced lower-quality motions than
-  state-of-the-art tracking methods. [119, 121, 217]
-  - *Approach*: The paper introduces several key design decisions to stabilize
-    training and improve quality: [71, 218]
-    1. *Least-Squares GAN (LSGAN) Loss*: Replaces the standard sigmoid cross-entropy
-      loss to prevent vanishing gradients and improve training stability. [235]
-    2. *Gradient Penalty*: A regularizer is applied to the discriminator to penalize
-      non-zero gradients on real data samples, which mitigates generator instability.
-      [262, 269]
-    3. *Discriminator Observations*: The discriminator is fed a specific set of
-      task-agnostic features, including local joint/root velocities and end-effector
-      positions, to provide a compact and effective representation of motion dynamics.
-      [246, 248, 252, 538]
-  - *Hypothesis*: These specific modifications will stabilize the adversarial
-    training dynamics, leading to consistent, high-fidelity motion quality that is
-    comparable to tracking-based techniques. [129]
-  - *Alternative*: Avoiding adversarial learning in favor of more stable, but less
-    flexible, motion tracking objectives. [121]
+  The traditional alternative is to use meticulously engineered tracking
+  objectives that minimize a pose-error metric between the character and a
+  specific reference motion.
+]
+
+#challenge[
+  Scaling existing data-driven methods to large, unstructured motion datasets is
+  difficult. These methods often require a complex motion planner to select,
+  sequence, and blend appropriate clips for the character to follow, which
+  involves significant annotation overhead.
+][
+  The AMP framework is trained on the entire raw, unstructured motion dataset at
+  once. The reinforcement learning process, guided by the combined task and
+  style rewards, automatically learns to select, transition between, and compose
+  different skills (e.g., walking, jumping, punching) as needed to solve the
+  task.
+
+  #hypothesis[
+    The composition of disparate skills can emerge automatically from the
+    learned motion prior without needing an explicit high-level planner or any
+    task-specific annotations on the motion clips.
+  ]
+
+  Using a dedicated motion planner to generate reference trajectories by
+  selecting from annotated and organized motion clips.
+]
+
+#challenge[
+  Adversarial learning algorithms for motion imitation are notoriously unstable
+  and have historically produced lower-quality motions than state-of-the-art
+  tracking methods.
+][
+  The paper introduces several key design decisions to stabilize training and
+  improve quality:
+  1. *Least-Squares GAN (LSGAN) Loss*: Replaces the standard sigmoid
+    cross-entropy loss to prevent vanishing gradients and improve training
+    stability.
+  2. *Gradient Penalty*: A regularizer is applied to the discriminator to
+    penalize non-zero gradients on real data samples, which mitigates generator
+    instability.
+  3. *Discriminator Observations*: The discriminator is fed a specific set of
+    task-agnostic features, including local joint/root velocities and
+    end-effector positions, to provide a compact and effective representation of
+    motion dynamics.
+
+  #hypothesis[
+    These specific modifications will stabilize the adversarial training
+    dynamics, leading to consistent, high-fidelity motion quality that is
+    comparable to tracking-based techniques.
+  ]
+
+  *Alternative*: Avoiding adversarial learning in favor of more stable, but less
+  flexible, motion tracking objectives.
+]
 
 === Proposed Component: Adversarial Motion Prior (AMP)
 
 At its core, the paper proposes the *Adversarial Motion Prior (AMP)*, which is a
-learned, task-agnostic style-reward function. [167, 212]
+learned, task-agnostic style-reward function.
 
-- *Model*: The AMP is an adversarial discriminator network, $D(Phi(s_t), Phi(s_t+1))$.
-  [212, 247]
+- *Model*: The AMP is an adversarial discriminator network,
+  $D(Phi(s_t), Phi(s_t+1))$.
+
 - *Inputs*:
   - *For Training*: The discriminator is trained on two sources of data:
-    1. "Real" examples: State transitions $(s_t, s_t+1)$ sampled from a reference
-      dataset $M$ of unstructured motion clips. [214]
-    2. "Fake" examples: State transitions $(s_t, s_t+1)$ generated by the character's
-      control policy $pi$. [214]
-  - *For Inference (providing reward)*: It takes a state transition $(s_t, s_t+1)$ from
-    the character in the simulation environment. [302]
+    1. "Real" examples: State transitions $(s_t, s_t+1)$ sampled from a
+      reference dataset $M$ of unstructured motion clips.
+    2. "Fake" examples: State transitions $(s_t, s_t+1)$ generated by the
+      character's control policy $pi$.
+  - *For Inference (providing reward)*: It takes a state transition
+    $(s_t, s_t+1)$ from the character in the simulation environment.
 - *Outputs*:
-  - The discriminator outputs a score indicating how similar the input transition is
-    to the motions in the reference dataset. [213]
-  - This score is converted into a bounded *style-reward* $r^S_t$ for the RL policy.
-    [240] The total reward for the policy is $r_t = w^G r^G_t + w^S r^S_t$. [205]
+  - The discriminator outputs a score indicating how similar the input
+    transition is to the motions in the reference dataset.
+  - This score is converted into a bounded *style-reward* $r^S_t$ for the RL
+    policy. The total reward for the policy is $r_t = w^G r^G_t + w^S r^S_t$.
 
 === Reproducibility Dependencies
 
 - *Physics Simulator*:
-  - *Bullet Physics Engine*: Used for all simulations. [343]
+  - *Bullet Physics Engine*: Used for all simulations.
 - *Motion Datasets*:
-  - *CMU Graphics Lab Motion Capture Database*: A public mocap library. [362, 654]
-  - *SFU Motion Capture Database*: Another public mocap library. [362, 796]
+  - *CMU Graphics Lab Motion Capture Database*: A public mocap library.
+  - *SFU Motion Capture Database*: Another public mocap library.
   - *Proprietary/Custom Data*:
-    - Motion data provided by *Sony Interactive Entertainment*. [632]
-    - *Custom recorded mocap clips*. [346]
-    - *Artist-authored keyframe animations* from Zhang et al. 2018. [362, 831]
+    - Motion data provided by *Sony Interactive Entertainment*.
+    - *Custom recorded mocap clips*.
+    - *Artist-authored keyframe animations* from Zhang et al. 2018.
 
 === Perspectives & Assumptions
 
 - *Perspective Missing from Abstract*: The abstract highlights the use of
   unstructured data, but a key emergent property is *compositionality*. The
-  framework enables a policy to learn to temporally sequence and combine distinct
-  skills (e.g., walking then punching) to solve a task, even when no examples of
-  the combined sequence exist in the training data. [408-410]
+  framework enables a policy to learn to temporally sequence and combine
+  distinct skills (e.g., walking then punching) to solve a task, even when no
+  examples of the combined sequence exist in the training data.
 - *Assumption of Simplicity*: The paper posits that task objectives can be
-  specified with "relatively simple reward functions." [13] However, the reward
+  specified with "relatively simple reward functions." However, the reward
   functions detailed in the appendix for tasks like Dribbling and Striking are
   quite complex, involving multiple weighted, clipped, and exponential terms,
-  which slightly weakens the claim of simplicity. [858, 881]
-- *Assumption of Physical Consistency*: The discriminator is trained using motion
-  capture data which may not be physically reproducible by the agent's model.
-  [227] The work assumes that the learned discriminator is still an effective
-  objective despite this potential physical mismatch. [228]
+  which slightly weakens the claim of simplicity.
+- *Assumption of Physical Consistency*: The discriminator is trained using
+  motion capture data which may not be physically reproducible by the agent's
+  model. The work assumes that the learned discriminator is still an effective
+  objective despite this potential physical mismatch.
 
 == Problem Formulation
 
@@ -146,8 +168,8 @@ $
 
 - $r^G$: A reward function defining the high-level task objective. This is
   typically simple and designed by the user.
-- $r^S$: A task-agnostic reward function that encourages the character to move in
-  a "style" defined by a reference motion dataset.
+- $r^S$: A task-agnostic reward function that encourages the character to move
+  in a "style" defined by a reference motion dataset.
 - $w^G, w^S$: Scalar weights to balance the two objectives.
 
 === Adversarial Motion Prior (AMP)
@@ -155,18 +177,22 @@ The style reward, $r^S$, is not manually designed but is learned via an
 adversarial process. This learned reward function is the *Adversarial Motion
 Prior*.
 
-- *Discriminator ($D$)*: A neural network, $D(Phi(s), Phi(s'))$, is trained to act
-  as a classifier. It distinguishes "real" state transitions $(s, s')$ sampled
-  from a reference motion dataset, $cal(M)$, from "fake" transitions generated by
-  the policy, $pi$. The function $Phi(s)$ is a feature map that extracts relevant
-  kinematic features from the full state $s$.
+- *Discriminator ($D$)*: A neural network, $D(Phi(s), Phi(s'))$, is trained to
+  act as a classifier. It distinguishes "real" state transitions $(s, s')$
+  sampled from a reference motion dataset, $cal(M)$, from "fake" transitions
+  generated by the policy, $pi$. The function $Phi(s)$ is a feature map that
+  extracts relevant kinematic features from the full state $s$.
 
 - *Discriminator Objective*: The discriminator is trained using a least-squares
   objective (from LSGAN) with an added gradient penalty for training stability.
-  The goal is to regress the output to 1 for real samples and -1 for fake samples.
+  The goal is to regress the output to 1 for real samples and -1 for fake
+  samples.
 
   $
-    min_D (EE_((s, s') ~ d^cal(M)) [(D(Phi(s), Phi(s')) - 1)^2 ] + EE_((s, s') ~ d^pi) [(D(Phi(s), Phi(s')) + 1)^2 ] + w^(g p)/2 EE_((s, s') ~ d^cal(M)) [norm(nabla_phi.alt D(phi.alt))^2 ]) quad(3)
+    min_D cal(L)_"disc" \
+    cal(L)_"disc" = & EE_((s, s') ~ d^cal(M)) [(D(Phi(s), Phi(s')) - 1)^2 ] \
+    + & EE_((s, s') ~ d^pi) [(D(Phi(s), Phi(s')) + 1)^2 ] \
+    + & w^(g p)/2 EE_((s, s') ~ d^cal(M)) [norm(nabla_phi.alt D(phi.alt))^2 ] quad(3)
   $
 
 - $d^cal(M)$ and $d^pi$ are the state-transition distributions of the motion
@@ -176,8 +202,8 @@ Prior*.
 - $w^(g p)$ is the gradient penalty coefficient.
 
 - *Style Reward Generation*: The output of the discriminator is used to compute
-  the style reward for the policy. The reward is high when the discriminator is "fooled"
-  (i.e., its output for a policy-generated transition is close to 1).
+  the style reward for the policy. The reward is high when the discriminator is
+  "fooled" (i.e., its output for a policy-generated transition is close to 1).
 
   $
     r^S (s_t, s_(t + 1)) = max [0, 1 - 0 . 25(D(Phi(s_t), Phi(s_(t + 1))) - 1)^2 ] quad(4)
@@ -201,12 +227,12 @@ both the discriminator and the policy are updated.
 - *Outputs*:
   - *Policy Network* $pi(a|s, g)$: A neural network with randomly initialized
     weights.
-  - *Value Network* $V(s, g)$: A neural network with randomly initialized weights,
-    used for the PPO algorithm.
+  - *Value Network* $V(s, g)$: A neural network with randomly initialized
+    weights, used for the PPO algorithm.
   - *Discriminator Network* $D(phi)$: A neural network with randomly initialized
     weights.
-  - *Replay Buffer* $cal(B)$: An empty buffer to store trajectories generated by the
-    policy.
+  - *Replay Buffer* $cal(B)$: An empty buffer to store trajectories generated by
+    the policy.
 
 === Trajectory Collection
 
@@ -217,33 +243,35 @@ both the discriminator and the policy are updated.
   - Physics Simulator (e.g., Bullet).
 - *Process*:
   1. For a set number of episodes, run the policy in the environment.
-  2. At each timestep $t$, the policy receives state $s_t$ and goal $g$, and outputs
-    an action $a_t$.
-  3. The simulator executes $a_t$ and returns the next state $s_t+1$ and a *task-only
-    reward* $r^G_t$.
-  4. Store the collected transitions $(s_t, a_t, r^G_t, s_t+1, g)$ in a temporary
-    buffer.
+  2. At each timestep $t$, the policy receives state $s_t$ and goal $g$, and
+    outputs an action $a_t$.
+  3. The simulator executes $a_t$ and returns the next state $s_t+1$ and a
+    *task-only reward* $r^G_t$.
+  4. Store the collected transitions $(s_t, a_t, r^G_t, s_t+1, g)$ in a
+    temporary buffer.
 - *Outputs*:
   - *Trajectory Batch*: A collection of trajectories, where each trajectory is a
-    sequence of transitions. The rewards in this batch are only the task rewards $r^G$.
+    sequence of transitions. The rewards in this batch are only the task rewards
+    $r^G$.
 
 === Reward Calculation
 
-- *Description*: The collected trajectories are processed to calculate the final,
-  composite reward for each step by querying the discriminator.
+- *Description*: The collected trajectories are processed to calculate the
+  final, composite reward for each step by querying the discriminator.
 - *Inputs*:
   - Trajectory Batch from Stage 2.
   - Current Discriminator Network $D$.
 - *Process*:
-  1. For each transition $(s_t, s_t+1)$ in the batch: a. Map the states to feature
-    vectors: $phi_t = (Phi(s_t), Phi(s_t+1))$. b. Calculate the *style reward* $r^S_t$ using
-    the discriminator and *Equation (4)*. c. Calculate the *total reward* $r_t$ by
-    combining the task and style rewards using *Equation (2)*.
+  1. For each transition $(s_t, s_t+1)$ in the batch: a. Map the states to
+    feature vectors: $phi_t = (Phi(s_t), Phi(s_t+1))$. b. Calculate the *style
+    reward* $r^S_t$ using the discriminator and *Equation (4)*. c. Calculate the
+    *total reward* $r_t$ by combining the task and style rewards using *Equation
+    (2)*.
   2. Update the rewards in the trajectory batch with the new total rewards.
   3. Add the processed trajectories to the main replay buffer $cal(B)$.
 - *Outputs*:
-  - *Processed Trajectory Batch*: The same batch of trajectories, but now containing
-    the final composite rewards.
+  - *Processed Trajectory Batch*: The same batch of trajectories, but now
+    containing the final composite rewards.
   - *Updated Replay Buffer* $cal(B)$.
 
 === Discriminator Update
@@ -292,133 +320,140 @@ converges to a desired level of performance.
 Based on the paper's Results, Discussion, and Limitations sections, the authors
 designed experiments to answer the following key questions:
 
-=== Can AMP learn to perform complex tasks by composing skills from large, unstructured datasets?
+#question[
+  Can AMP learn to perform complex tasks by composing skills from large,
+  unstructured datasets?
+][
+  Policies were trained for a variety of high-level tasks, including
+  `Target Heading`, `Target Location`, `Dribble`, `Strike`, and traversing
+  obstacle courses. The motion prior for these tasks was trained on large,
+  unannotated datasets containing multiple disparate skills, such as a
+  "Locomotion" dataset with 434 seconds of walking, jogging, and running clips,
+  or a "Walk + Punch" dataset. To isolate the effect of the diverse dataset, a
+  `Target Heading` task was trained with three different motion priors: one with
+  the full "Locomotion" dataset, one with only "Walk" clips, and one with only
+  "Run" clips.
+][
+  *Metrics*: The primary metric was *Normalized Task Return*, which measures how
+  successfully the agent completes the task objective (e.g., matching a target
+  speed, reaching a location). Qualitative visual assessment was also used.
 
-- *Experimental Design*:
-  - Policies were trained for a variety of high-level tasks, including `Target Heading`, `Target Location`, `Dribble`, `Strike`,
-    and traversing obstacle courses.
-  - The motion prior for these tasks was trained on large, unannotated datasets
-    containing multiple disparate skills, such as a "Locomotion" dataset with 434
-    seconds of walking, jogging, and running clips, or a "Walk + Punch" dataset.
-  - To isolate the effect of the diverse dataset, a `Target Heading` task was
-    trained with three different motion priors: one with the full "Locomotion"
-    dataset, one with only "Walk" clips, and one with only "Run" clips.
+  *Results*: Policies successfully solved complex tasks by automatically
+  composing skills. For instance, in the `Strike` task, the character learned to
+  walk to a target and then transition to a punch, even though no single clip in
+  the dataset demonstrated this sequence. In the `Obstacles` task, the character
+  would run, leap over gaps, and roll under barriers as needed. In the
+  `Target Heading` comparison, the policy trained on the diverse "Locomotion"
+  dataset automatically switched between walking, jogging, and running gaits to
+  match different target speeds. In contrast, the policy trained on only "Walk"
+  data could not achieve high speeds, and the "Run"-only policy could not match
+  slow speeds.
 
-- *Results & Metrics*:
-  - *Metrics*: The primary metric was *Normalized Task Return*, which measures how
-    successfully the agent completes the task objective (e.g., matching a target
-    speed, reaching a location). Qualitative visual assessment was also used.
-  - *Results*:
-    - Policies successfully solved complex tasks by automatically composing skills.
-      For instance, in the `Strike` task, the character learned to walk to a target
-      and then transition to a punch, even though no single clip in the dataset
-      demonstrated this sequence. In the `Obstacles` task, the character would run,
-      leap over gaps, and roll under barriers as needed.
-    - In the `Target Heading` comparison, the policy trained on the diverse "Locomotion"
-      dataset automatically switched between walking, jogging, and running gaits to
-      match different target speeds. In contrast, the policy trained on only "Walk"
-      data could not achieve high speeds, and the "Run"-only policy could not match
-      slow speeds.
+  The results show that AMP can successfully leverage large, unannotated motion
+  libraries. It automatically learns to sequence and blend skills in service of
+  a high-level goal, removing the need for explicit motion planning or clip
+  selection that limited prior work.
+][
+  The framework is susceptible to *mode collapse*, a common issue in GANs, where
+  the policy may learn to imitate only a small subset of the motions available
+  in a large dataset, ignoring other potentially more optimal behaviors. The
+  experiments primarily demonstrate *temporal composition* (skills performed in
+  sequence). The paper notes that improving *spatial composition* (performing
+  multiple skills simultaneously, like waving while walking) is an area for
+  future work.
+]
 
-- *Significance*: The results show that AMP can successfully leverage large,
-  unannotated motion libraries. It automatically learns to sequence and blend
-  skills in service of a high-level goal, removing the need for explicit motion
-  planning or clip selection that limited prior work.
+#question[
+  How does AMP compare to alternative motion prior methods, specifically latent
+  space models?
+][
+  AMP was compared against two baselines on several tasks (`Target Location`,
+  `Dribble`, `Strike`, `Obstacles`):
+  1. A *Latent Space Model*: An alternative approach where a low-level
+    controller is pre-trained to imitate motions from the dataset, and a
+    high-level controller learns to command it using a learned latent
+    representation.
+  2. A *"No Data"* model: A policy trained from scratch with only the task
+    reward, without any motion data.
+][
+  *Metrics*: *Task Return* (plotted in learning curves) and qualitative visual
+  assessment of motion fidelity.
 
-- *Limitations*:
-  - The framework is susceptible to *mode collapse*, a common issue in GANs, where
-    the policy may learn to imitate only a small subset of the motions available in
-    a large dataset, ignoring other potentially more optimal behaviors.
-  - The experiments primarily demonstrate *temporal composition* (skills performed
-    in sequence). The paper notes that improving *spatial composition* (performing
-    multiple skills simultaneously, like waving while walking) is an area for future
-    work.
+  *Results*: Qualitatively, AMP produced higher fidelity motions with fewer
+  artifacts than the latent space model. The latent space model was prone to
+  generating unnatural behaviors when its high-level controller produced
+  commands outside the distribution seen during pre-training. Quantitatively,
+  AMP achieved comparable or superior final task returns compared to the latent
+  space model. While the latent space model learned faster on the downstream
+  task (due to pre-training), its pre-training phase was highly
+  sample-intensive, whereas AMP trains the policy and prior jointly. Both
+  methods produced far more natural motions than the "No Data" baseline.
 
-=== How does AMP compare to alternative motion prior methods, specifically latent space models?
-
-- *Experimental Design*:
-  - AMP was compared against two baselines on several tasks (`Target Location`, `Dribble`, `Strike`, `Obstacles`):
-    1. A *Latent Space Model*: An alternative approach where a low-level controller is
-      pre-trained to imitate motions from the dataset, and a high-level controller
-      learns to command it using a learned latent representation.
-    2. A *"No Data"* model: A policy trained from scratch with only the task reward,
-      without any motion data.
-
-- *Results & Metrics*:
-  - *Metrics*: *Task Return* (plotted in learning curves) and qualitative visual
-    assessment of motion fidelity.
-  - *Results*:
-    - Qualitatively, AMP produced higher fidelity motions with fewer artifacts than
-      the latent space model. The latent space model was prone to generating unnatural
-      behaviors when its high-level controller produced commands outside the
-      distribution seen during pre-training.
-    - Quantitatively, AMP achieved comparable or superior final task returns compared
-      to the latent space model. While the latent space model learned faster on the
-      downstream task (due to pre-training), its pre-training phase was highly
-      sample-intensive, whereas AMP trains the policy and prior jointly. Both methods
-      produced far more natural motions than the "No Data" baseline.
-
-- *Significance*: AMP's direct enforcement of style through the reward function is
-  more effective at preventing unnatural motions than the indirect constraint of a
+  AMP's direct enforcement of style through the reward function is more
+  effective at preventing unnatural motions than the indirect constraint of a
   latent space. It also provides a more unified training framework without a
   separate pre-training stage.
+][
+  The structured exploration provided by the pre-trained latent space allows the
+  policy to solve downstream tasks more quickly initially.
+]
 
-- *Limitations*: The structured exploration provided by the pre-trained latent
-  space allows the policy to solve downstream tasks more quickly initially.
+#question[
+  How does AMP perform on single-skill imitation compared to specialized
+  motion-tracking methods?
+][
+  AMP was evaluated on a *single-clip imitation task*, where the policy is
+  trained to maximize only the style reward ($r^S$) from a single reference
+  motion, with no task reward. Its performance was directly compared to a
+  state-of-the-art *motion tracking* approach (Peng et al. 2018a), which uses a
+  manually designed reward function and requires a phase variable to synchronize
+  the policy with the reference motion.
+][
+  *Metric*: *Average Pose Error* (in meters), calculated between the character's
+  motion and the reference motion. To ensure a fair comparison, Dynamic Time
+  Warping (DTW) was used to align the two motions before calculating the error,
+  which accounts for AMP not being synchronized.
 
-=== How does AMP perform on single-skill imitation compared to specialized motion-tracking methods?
+  *Results*: AMP was able to
+  closely imitate a wide variety of dynamic and acrobatic skills, achieving pose
+  errors comparable to the specialized motion tracking method (Table 3). While
+  the tracking method was often slightly better, AMP produced results of similar
+  quality without manual reward engineering or phase synchronization.
 
-- *Experimental Design*:
-  - AMP was evaluated on a *single-clip imitation task*, where the policy is trained
-    to maximize only the style reward ($r^S$) from a single reference motion, with
-    no task reward.
-  - Its performance was directly compared to a state-of-the-art *motion tracking*
-    approach (Peng et al. 2018a), which uses a manually designed reward function and
-    requires a phase variable to synchronize the policy with the reference motion.
+  The results demonstrate that adversarial imitation, when properly configured,
+  can achieve a level of motion fidelity on par with tracking-based techniques,
+  while offering greater flexibility and removing the need for manual reward
+  design.
+][
+  The tracking-based method generally learns faster and achieves lower error due
+  to the strong guidance from the synchronized reference poses. For some
+  motions, AMP is more prone to converging to local optima (e.g., shuffling
+  instead of flipping) because it lacks this explicit synchronization.
+]
 
-- *Results & Metrics*:
-  - *Metric*: *Average Pose Error* (in meters), calculated between the character's
-    motion and the reference motion. To ensure a fair comparison, Dynamic Time
-    Warping (DTW) was used to align the two motions before calculating the error,
-    which accounts for AMP not being synchronized.
-  - *Results*: AMP was able to closely imitate a wide variety of dynamic and
-    acrobatic skills, achieving pose errors comparable to the specialized motion
-    tracking method (Table 3). While the tracking method was often slightly better,
-    AMP produced results of similar quality without manual reward engineering or
-    phase synchronization.
+#question[
+  Which of AMP's design components are most critical for its performance and
+  stability?
+][
+  An *ablation study* was conducted on the single-clip imitation task. The full
+  AMP model was compared against two modified versions:
+  1. `AMP - No GP`: The model without the gradient penalty on the discriminator.
+  2. `AMP - No Vel`: The model without joint and root velocity features in the
+    discriminator's input.
+][
+  *Metric*: *Pose Error* (plotted in learning curves) and qualitative assessment
+  of stability and motion artifacts.
 
-- *Significance*: The results demonstrate that adversarial imitation, when
-  properly configured, can achieve a level of motion fidelity on par with
-  tracking-based techniques, while offering greater flexibility and removing the
-  need for manual reward design.
-
-- *Limitations*:
-  - The tracking-based method generally learns faster and achieves lower error due
-    to the strong guidance from the synchronized reference poses.
-  - For some motions, AMP is more prone to converging to local optima (e.g.,
-    shuffling instead of flipping) because it lacks this explicit synchronization.
-
-=== Which of AMP's design components are most critical for its performance and stability?
-
-- *Experimental Design*:
-  - An *ablation study* was conducted on the single-clip imitation task.
-  - The full AMP model was compared against two modified versions:
-    1. `AMP - No GP`: The model without the gradient penalty on the discriminator.
-    2. `AMP - No Vel`: The model without joint and root velocity features in the
-      discriminator's input.
-
-- *Results & Metrics*:
-  - *Metric*: *Pose Error* (plotted in learning curves) and qualitative assessment
-    of stability and motion artifacts.
-  - *Results*:
-    - The *Gradient Penalty (GP)* was found to be the most vital component. Without
-      it, training was highly unstable, with large performance fluctuations and
-      noticeable artifacts in the final motion.
-    - *Velocity features* were also crucial for certain dynamic motions. For example,
-      when imitating a "Roll," the `No Vel` model tended to converge to a static pose
-      on the ground instead of completing the rolling motion.
-
-- *Significance*: This analysis validates that the specific stabilization
-  techniques chosen (gradient penalty and rich kinematic features) are essential
-  for overcoming the common pitfalls of adversarial imitation learning and are
-  directly responsible for the high-quality results.
+  *Results*: The *Gradient Penalty (GP)* was
+  found to be the most vital component. Without it, training was highly
+  unstable, with large performance fluctuations and noticeable artifacts in the
+  final motion. *Velocity features* were also crucial for certain dynamic
+  motions. For example, when imitating a "Roll," the `No Vel` model tended to
+  converge to a static pose on the ground instead of completing the rolling
+  motion.
+][
+  This analysis validates that the specific stabilization techniques chosen
+  (gradient penalty and rich kinematic features) are essential for overcoming
+  the common pitfalls of adversarial imitation learning and are directly
+  responsible for the high-quality results.
+]

@@ -1,7 +1,9 @@
-#import "notes_template.typ": *
+#import "styles/notes_template.typ": *
 
-#show: dvdtyp.with(
-  title: "Deep Learning Notes", subtitle: [], author: "Howard Nguyen-Huu",
+#show: note.with(
+  title: "Deep Learning Notes",
+  subtitle: "",
+  author: "Howard Nguyen-Huu",
 )
 
 #outline()
@@ -17,9 +19,9 @@
 
 - mambe is a kind of SSM which
 
-- in SSM, an input sequence $x(t) in RR$ is transformed into an output sequence $y(t) in RR$ through
-  a state variable $h(t) in CC^N$ Here $t>0$ represents the time indesx and $N$ indicates
-  the dimension of the state veriable
+- in SSM, an input sequence $x(t) in RR$ is transformed into an output sequence
+  $y(t) in RR$ through a state variable $h(t) in CC^N$ Here $t>0$ represents the
+  time indesx and $N$ indicates the dimension of the state veriable
 
 - zeor-order hold discrization is used
 given a timescale $Delta$ which repres the interval betw discreet time steps
@@ -35,8 +37,9 @@ given a timescale $Delta$ which repres the interval betw discreet time steps
 
 - why structure-aware state fusion?
   - while mamba performs well on sequential data, its original formulation is
-    primarily designed for 1D dequences, appying it to Cd or 3d image data typically
-    requires flattedning which disrupts the spatial structure of the image
+    primarily designed for 1D dequences, appying it to Cd or 3d image data
+    typically requires flattedning which disrupts the spatial structure of the
+    image
 
   - many methods use different "paths" through the image
 
@@ -62,10 +65,11 @@ given a timescale $Delta$ which repres the interval betw discreet time steps
   - molecules: $z in RR^(N times 3)$
 
 - What does it mean to successfully generate something?
-  - we can frame the success of our generated sample as how likely it was that it
-    came from our desired probability distribution
+  - we can frame the success of our generated sample as how likely it was that
+    it came from our desired probability distribution
   - thus, we solve this problem by learning a data distribution from a dataset
-  - then, generation will be as easy as sampling from our learned data distribution
+  - then, generation will be as easy as sampling from our learned data
+    distribution
 
 - Data distribution: distr. of objs that we want to generate
 
@@ -78,8 +82,8 @@ $
   z_1, ... z_N ~ p_"data"
 $
 
-- conditional generation means sampling the conditional data distr, this allows us
-  to have some control of what we generate
+- conditional generation means sampling the conditional data distr, this allows
+  us to have some control of what we generate
 $
   z~p_"data" (dot | y)
 $
@@ -112,8 +116,8 @@ $
 
 === VQ-VAE
 
-- when using autoregressive models- if you are predicting discrete things you need
-  a codebook
+- when using autoregressive models- if you are predicting discrete things you
+  need a codebook
 
 $
   L = log p(x|z_q(x)) + || "sg"[z_e (x)] - e||^2_2 + beta||
@@ -121,12 +125,12 @@ $
 
 == GAN
 
-- one of the issues with GAN loss is with the KL loss; when the distributions have
-  no overlap the KL goes to infinity
+- one of the issues with GAN loss is with the KL loss; when the distributions
+  have no overlap the KL goes to infinity
 - to solve this the Wasserstein loss was introduced, WGAN uses the optimal
   tansportation plan as the learning objective
-- Wasserstein loss is kinda like moveing the means together instead of optimizing
-  with SGD wrt KL divergence, but with Lipschitz constraints
+- Wasserstein loss is kinda like moveing the means together instead of
+  optimizing with SGD wrt KL divergence, but with Lipschitz constraints
 
 - StyleGAN: able to control the generation and have very smooth head generation?
 - they don't really pay attn to discriminator, but the generator they advance
@@ -139,8 +143,8 @@ $
 - traditionally, latent diffusion model 2 parts: train VAE, train diffusion on
   that
 - if one were to train this e2e, this does not work at all, since it tries to
-  learn more on the pixel space (local low level features) this makes it difficult
-  to learn the latent features
+  learn more on the pixel space (local low level features) this makes it
+  difficult to learn the latent features
 - align with DINOv2 features while still training e2e
 - they got better VAE performance when doing this as well
 

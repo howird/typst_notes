@@ -10,6 +10,6 @@
 
 #pagebreak()
 
-#include "humanoid_control/amp.typ"
-#include "humanoid_control/phc.typ"
-#include "humanoid_control/omnigrasp.typ"
+#include "humanoid_control/mdm.typ"
+#include "humanoid_control/physdiff.typ"
+#include "humanoid_control/physical-motion-restoration.typ"
