@@ -1,21 +1,17 @@
 #import "@preview/ctheorems:1.1.3": thmrules
 #import "@preview/numbly:0.1.0": numbly
 
-#let fonts = (
-  serif: "New Computer Modern",
-  sans: "New Computer Modern Sans",
-  mono: "DejaVu Sans Mono font",
-)
-
 #let note(
   title: "",
   subtitle: "",
   author: "",
   date: "",
   abstract: none,
-  accent: green,
+  accent: luma(127),
   paper: "us-letter",
-  margin: (top: 1in, bottom: 0.85in, inside: 1.25in, outside: 0.85in),
+  margin: (top: 0.95in, bottom: 0.85in, inside: 1.2in, outside: 0.8in),
+  font: "New Computer Modern",
+  mono: "DejaVu Sans Mono",
   fontsize: 12pt,
   cols: 1,
   sectionnumbering: numbly(
@@ -38,7 +34,7 @@
     columns: cols,
     header: context {
       show smallcaps: set text(tracking: 0.14em)
-      set text(12pt, font: fonts.sans)
+      set text(12pt, font: font)
       if (here().page()) > 1 {
         if calc.odd(here().page()) {
           align(right, text(fill: accent)[#smallcaps(all: true)[#title]])
@@ -49,7 +45,7 @@
     },
     footer-descent: 30% + 0pt,
     footer: context {
-      set text(10pt, font: fonts.sans)
+      set text(10pt, font: font)
       if calc.odd(here().page()) {
         align(right, counter(page).display("1"))
       } else {
@@ -62,7 +58,7 @@
 
   set text(
     lang: "en",
-    font: fonts.serif,
+    font: font,
     size: fontsize,
     spacing: 90%,
     alternates: false,
@@ -84,7 +80,7 @@
   show quote: set text(style: "normal")
 
   show raw: set block(inset: (left: 2em, top: 1em, right: 1em, bottom: 1em))
-  show raw: set text(fill: rgb("#116611"), size: 9pt, font: fonts.mono)
+  show raw: set text(fill: rgb("#116611"), size: 9pt, font: mono)
 
   set image(fit: "contain")
   show image: it => {
@@ -105,7 +101,7 @@
   set heading(numbering: sectionnumbering)
 
   let heading-number(it) = if it.numbering != none {
-    text(font: fonts.sans, fill: accent, weight: 600, size: fontsize + 1pt)[
+    text(font: font, fill: accent, weight: 600, size: fontsize + 1pt)[
       #sym.section #counter(heading).display()
     ]
   } else {
@@ -123,7 +119,7 @@
         #heading-number(it)
         #h(0.4em)
       ]
-      #set text(font: fonts.serif, weight: "regular", size: fontsize + 4pt)
+      #set text(font: font, weight: "regular", size: fontsize + 4pt)
       #it.body
     ]
     #v(6pt)
@@ -137,7 +133,7 @@
     #par(justify: false, first-line-indent: 0em)[
       #if it.numbering != none [
         #text(
-          font: fonts.sans,
+          font: font,
           fill: accent,
           weight: 600,
           size: fontsize + 0.5pt,
@@ -146,7 +142,7 @@
         ]
         #h(0.35em)
       ]
-      #set text(font: fonts.serif, style: "italic", size: fontsize + 2pt)
+      #set text(font: font, style: "italic", size: fontsize + 2pt)
       #it.body
     ]
   ])
@@ -157,12 +153,12 @@
   )[
     #par(justify: false, first-line-indent: 0em)[
       #if it.numbering != none [
-        #text(font: fonts.sans, fill: accent, weight: 600, size: fontsize)[
+        #text(font: font, fill: accent, weight: 600, size: fontsize)[
           #counter(heading).display()
         ]
         #h(0.3em)
       ]
-      #set text(font: fonts.sans, size: fontsize, tracking: 0.14em)
+      #set text(font: font, size: fontsize, tracking: 0.14em)
       #smallcaps(all: true)[#it.body]
     ]
   ])
@@ -175,17 +171,17 @@
   show outline: set par(first-line-indent: 0em)
 
   show outline.entry.where(level: 1): it => {
-    text(font: fonts.sans, fill: accent)[#it]
+    text(font: font, fill: accent)[#it]
   }
   show outline.entry: it => {
-    text(font: fonts.sans, fill: accent)[#it]
+    text(font: font, fill: accent)[#it]
   }
 
   // Title block.
   v(1em)
   set par(justify: false)
   align(left, [
-    #set text(font: fonts.serif, size: fontsize + 6pt)
+    #set text(font: font, size: fontsize + 6pt)
     #title
     #if subtitle != none and subtitle != "" [
       : #emph[#subtitle]
@@ -194,17 +190,21 @@
 
   v(1em)
   if author != none and author != "" {
-    align(left, text(size: fontsize, font: fonts.serif)[#author])
+    align(left, text(size: fontsize, font: font)[#author])
   }
   if date != none and date != "" {
-    align(left, text(size: fontsize, font: fonts.serif)[#date])
+    align(left, text(size: fontsize, font: font)[#date])
   }
 
   if abstract != none {
     v(0.5em)
     align(
       left,
-      text(size: fontsize - 1pt, tracking: 0.05em, font: fonts.sans)[ABSTRACT: ]
+      text(
+        size: fontsize - 1pt,
+        tracking: 0.05em,
+        font: font,
+      )[ABSTRACT: ]
         + text(size: fontsize - 1pt, style: "italic")[#abstract],
     )
   }

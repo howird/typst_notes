@@ -1,0 +1,82 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+OUT_EXT="pdf"
+SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
+OUT_DIR="$SCRIPT_DIR/../out"
+
+if [[ $# -lt 1 ]]; then
+  printf 'Usage: %s <path-or-file> [typst-args...]\n' "$(basename "$0")" >&2
+  exit 1
+fi
+
+input=$1
+shift
+typst_args=("$@")
+
+if [[ ! -e $input ]]; then
+  printf 'Path %s does not exist.\n' "$input" >&2
+  exit 1
+fi
+
+mkdir -p "$OUT_DIR"
+
+status=0
+
+prompt_overwrite() {
+  local output=$1 reply
+  printf 'Output %s already exists. Overwrite? [y/N] ' "$output" > /dev/tty
+  if ! IFS= read -r reply < /dev/tty; then
+    printf '\n' > /dev/tty
+    return 1
+  fi
+  case "$reply" in
+    [Yy]|[Yy][Ee][Ss]) return 0 ;;
+    *) return 1 ;;
+  esac
+}
+
+process_file() {
+  local file=$1
+
+  if [[ ! -f $file ]]; then
+    printf 'File %s does not exist.\n' "$file" >&2
+    status=1
+    return
+  fi
+
+  local name name_without_ext output
+  name=$(basename -- "$file")
+  name_without_ext=${name%.*}
+  output="$OUT_DIR/$name_without_ext.$OUT_EXT"
+
+  if [[ -f $output ]]; then
+    if ! prompt_overwrite "$output"; then
+      printf 'Skipping %s.\n' "$file" >&2
+      return
+    fi
+  fi
+
+  if ! typst compile "${typst_args[@]}" "$file" "$output"; then
+    printf 'Failed to compile %s.\n' "$file" >&2
+    status=1
+  fi
+}
+
+if [[ -d $input ]]; then
+  found=0
+  while IFS= read -r -d '' file; do
+    found=1
+    process_file "$file"
+  done < <(find "$input" -maxdepth 1 -type f -name '*.typ' -print0)
+
+  if [[ $found -eq 0 ]]; then
+    printf 'No .typ files found in directory %s.\n' "$input" >&2
+    exit 1
+  fi
+else
+  process_file "$input"
+fi
+
+exit $status

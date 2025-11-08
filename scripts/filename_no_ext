@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+
+# Usage: filename_no_ext /path/to/file.ext
+# Prints the filename without its extension.
+
+set -euo pipefail
+
+if [[ $# -ne 1 ]]; then
+  printf 'Usage: %s <path-to-file>\n' "$(basename "$0")" >&2
+  exit 1
+fi
+
+path=$1
+name=$(basename -- "$path")
+
+# Strip the extension if present.
+name_without_ext=${name%.*}
+
+printf '%s\n' "$name_without_ext"
+

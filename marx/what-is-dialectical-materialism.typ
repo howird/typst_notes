@@ -1,11 +1,10 @@
-#import "styles/notes_template.typ": *
+#import "../styles/notes_template.typ": *
 
 #show: note.with(
   title: "What is Dialectical Materialism",
   author: "Rob Sewell",
   date: [July 8#super[th], 2005],
   sectionnumbering: none,
-  accent: black,
 )
 
 #outline()

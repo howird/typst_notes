@@ -1,11 +1,10 @@
-#import "styles/notes_template.typ": *
+#import "../styles/notes_template.typ": *
 
 #show: note.with(
   title: "What is Historical Materialism",
   author: "Alan Woods",
   date: [January 14#super[th], 2016],
   sectionnumbering: none,
-  accent: black,
 )
 
 #outline()

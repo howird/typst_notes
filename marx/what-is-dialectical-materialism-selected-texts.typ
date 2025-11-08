@@ -1,11 +1,10 @@
-#import "styles/notes_template.typ": *
+#import "../styles/notes_template.typ": *
 
 #show: note.with(
   title: "What is Dialectical Materialism",
   subtitle: "Selected Texts",
   author: "Trotsky, Engels, Lenin",
   sectionnumbering: none,
-  accent: black,
 )
 
 #outline()

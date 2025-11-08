@@ -2,5 +2,7 @@
 pkgs.mkShell {
   nativeBuildInputs = with pkgs; [
     typstyle
+    papers
+    typst
   ];
 }
