@@ -7,6 +7,7 @@
   author: "",
   date: "",
   abstract: none,
+  foot: "",
   accent: luma(127),
   paper: "us-letter",
   margin: (top: 0.95in, bottom: 0.85in, inside: 1.2in, outside: 0.8in),
@@ -128,7 +129,6 @@
   show heading.where(level: 2): it => align(left, block(
     above: 12pt,
     below: 10pt,
-    width: 80%,
   )[
     #par(justify: false, first-line-indent: 0em)[
       #if it.numbering != none [
@@ -142,7 +142,7 @@
         ]
         #h(0.35em)
       ]
-      #set text(font: font, style: "italic", size: fontsize + 2pt)
+      #set text(font: font, size: fontsize + 1.5pt)
       #it.body
     ]
   ])
@@ -188,7 +188,7 @@
     ]
   ])
 
-  v(1em)
+  v(0.5em)
   if author != none and author != "" {
     align(left, text(size: fontsize, font: font)[#author])
   }
@@ -210,6 +210,7 @@
   }
 
   v(1em)
+
   line(start: (1%, 0%), end: (99%, 0%), stroke: 0.5pt + accent)
 
   counter(page).update(1)
@@ -217,4 +218,9 @@
   set par(justify: true, first-line-indent: 1.5em)
 
   body
+
+  if foot != none and foot != "" {
+    v(1fr)
+    align(center, text(size: 8pt, style: "italic")[#foot])
+  }
 }
